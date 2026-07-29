@@ -1,0 +1,35 @@
+name: SecOps CTI Pipeline
+
+on:
+  schedule:
+    # 매주 금요일 오후 6시 KST (UTC 기준 오전 9시)에 자동 실행
+    - cron: '0 9 * * 5'
+  workflow_dispatch: # 수동 실행 버튼 생성
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v3
+
+      - name: Python 환경 셋업
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 파이썬 라이브러리 설치
+        run: pip install -r requirements.txt
+
+      - name: 🛡️ CTI 자동화 파이프라인 실행
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python secops_pipeline.py
+
+      - name: 📝 생성된 블로그 포스팅 자동 푸시
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add _posts/
+          git commit -m "Auto-generate CTI Weekly Report" || echo "No changes to commit"
+          git push
