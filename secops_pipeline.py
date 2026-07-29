@@ -81,10 +81,11 @@ def main():
     kev_dict = fetch_cisa_kev()
     top_cves = fetch_and_filter_cves(kev_dict)
     
+    # 🎯 수정된 부분: 취약점이 없어도 무조건 기본 멘트로 글을 작성하게 만듭니다!
     if not top_cves:
-        return
-
-    ai_content = generate_ai_report(top_cves)
+        ai_content = "### 🛡️ 이번 주 위협 브리핑\n이번 주에는 CVSS 7.0 이상의 고위험 취약점이 발견되지 않았거나 수집되지 않았습니다. 안전한 한 주 되세요!"
+    else:
+        ai_content = generate_ai_report(top_cves)
 
     # 깃허브 블로그(Jekyll)가 인식할 수 있는 머리말(Front Matter) 추가
     front_matter = f"""---
